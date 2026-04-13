@@ -3,12 +3,12 @@ let data = JSON.parse(localStorage.getItem("outfits")) || {
   bottoms: [],
   undershirts: [],
   accessories: [],
+  shoes: [],
   history: []
 };
 
-if (!data.history) {
-  data.history = [];
-}
+if (!data.history) data.history = [];
+if (!data.shoes) data.shoes = [];
 
 function save() {
   localStorage.setItem("outfits", JSON.stringify(data));
@@ -19,7 +19,8 @@ function getInputIds(type) {
     shirts: { text: "shirtInput", image: "shirtImage" },
     bottoms: { text: "bottomInput", image: "bottomImage" },
     undershirts: { text: "underInput", image: "underImage" },
-    accessories: { text: "accessoryInput", image: "accessoryImage" }
+    accessories: { text: "accessoryInput", image: "accessoryImage" },
+    shoes: { text: "shoeInput", image: "shoeImage" }
   }[type];
 }
 
@@ -164,6 +165,11 @@ function renderHistory() {
           ${entry.outfit.accessory.image ? `<img src="${entry.outfit.accessory.image}" alt="${entry.outfit.accessory.name}">` : ""}
           <div><strong>Accessory:</strong> ${entry.outfit.accessory.name}</div>
         </div>
+
+        <div class="history-piece">
+          ${entry.outfit.shoes.image ? `<img src="${entry.outfit.shoes.image}" alt="${entry.outfit.shoes.name}">` : ""}
+          <div><strong>Shoes:</strong> ${entry.outfit.shoes.name}</div>
+        </div>
       </div>
     `;
 
@@ -176,7 +182,8 @@ function generateOutfit() {
     !data.shirts.length ||
     !data.bottoms.length ||
     !data.undershirts.length ||
-    !data.accessories.length
+    !data.accessories.length ||
+    !data.shoes.length
   ) {
     alert("Add at least one item to every category first.");
     return;
@@ -186,21 +193,67 @@ function generateOutfit() {
     shirt: random(data.shirts),
     bottom: random(data.bottoms),
     undershirt: random(data.undershirts),
-    accessory: random(data.accessories)
+    accessory: random(data.accessories),
+    shoes: random(data.shoes)
   };
 
   document.getElementById("outfit").innerHTML =
     makeOutfitCard("Shirt", outfit.shirt) +
     makeOutfitCard("Bottoms", outfit.bottom) +
     makeOutfitCard("Undershirt", outfit.undershirt) +
-    makeOutfitCard("Accessory", outfit.accessory);
+    makeOutfitCard("Accessory", outfit.accessory) +
+    makeOutfitCard("Shoes", outfit.shoes);
 
   saveOutfitToHistory(outfit);
   renderHistory();
 }
 
+function exportData() {
+  const saveData = JSON.stringify(data, null, 2);
+  const blob = new Blob([saveData], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "outfit-randomizer-save.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+
+      data = {
+        shirts: Array.isArray(imported.shirts) ? imported.shirts : [],
+        bottoms: Array.isArray(imported.bottoms) ? imported.bottoms : [],
+        undershirts: Array.isArray(imported.undershirts) ? imported.undershirts : [],
+        accessories: Array.isArray(imported.accessories) ? imported.accessories : [],
+        shoes: Array.isArray(imported.shoes) ? imported.shoes : [],
+        history: Array.isArray(imported.history) ? imported.history : []
+      };
+
+      save();
+      render();
+      document.getElementById("outfit").innerHTML = "";
+      alert("Save file imported.");
+    } catch {
+      alert("That save file is invalid.");
+    }
+  };
+
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
 function render() {
-  ["shirts", "bottoms", "undershirts", "accessories"].forEach(renderCategory);
+  ["shirts", "bottoms", "undershirts", "accessories", "shoes"].forEach(renderCategory);
   renderHistory();
 }
 
