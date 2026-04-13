@@ -9,6 +9,17 @@
 <h1>Outfit Randomizer</h1>
 
 <div class="section">
+  <div class="history-header">
+    <h2>Data</h2>
+    <div>
+      <button onclick="exportData()">Export Save File</button>
+      <button onclick="document.getElementById('importFile').click()">Import Save File</button>
+      <input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+</div>
+
+<div class="section">
   <h2>Shirts</h2>
   <input id="shirtInput" placeholder="Add shirt name">
   <input id="shirtImage" type="file" accept="image/*">
@@ -38,6 +49,14 @@
   <input id="accessoryImage" type="file" accept="image/*">
   <button onclick="addItem('accessories')">Add</button>
   <div id="accessories" class="item-grid"></div>
+</div>
+
+<div class="section">
+  <h2>Shoes</h2>
+  <input id="shoeInput" placeholder="Add shoe name">
+  <input id="shoeImage" type="file" accept="image/*">
+  <button onclick="addItem('shoes')">Add</button>
+  <div id="shoes" class="item-grid"></div>
 </div>
 
 <div class="section">
